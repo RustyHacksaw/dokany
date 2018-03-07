@@ -284,9 +284,9 @@ Routine Description:
       waitObj = FALSE;
     } else {
       // in this case the timer was executed and we are checking if the timer
-      // occured regulary using the period DOKAN_CHECK_INTERVAL. If not, this
+      // occurred regularly using the period DOKAN_CHECK_INTERVAL. If not, this
       // means the system was in sleep mode. If in this case the timer is
-      // faster awaken than the incoming IOCTL_KEEPALIVE
+      // awoken faster than the incoming IOCTL_KEEPALIVE and
       // the MountPoint would be removed by mistake (DokanCheckKeepAlive).
       KeQuerySystemTime(&CurrentTime);
       if ((CurrentTime.QuadPart - LastTime.QuadPart) >
@@ -297,6 +297,10 @@ Routine Description:
         ReleaseTimeoutPendingIrp(Dcb);
         DokanCheckKeepAlive(Dcb);
       }
+	  
+	  // reset the timeout to prevent accident unmounting
+      DokanUpdateTimeout(&Dcb->TickCount, DOKAN_KEEPALIVE_TIMEOUT);
+	  
       KeQuerySystemTime(&LastTime);
     }
   }
